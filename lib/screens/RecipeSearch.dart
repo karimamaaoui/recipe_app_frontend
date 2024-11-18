@@ -14,57 +14,104 @@ class _RecipeSearchState extends State<RecipeSearch> {
   final TextEditingController _keywordController = TextEditingController();
   String? selectedIngredient;
   final List<String> ingredients = [
-    'Tomato', 'Vanilla', 'Cucumber', 'Onion', 'Carrot','Chocolate'
+    'Tomato', 'Vanilla', 'Cucumber', 'Onion', 'Carrot', 'Chocolate'
   ];
+
+  // Variables pour la pagination
+  int page = 1;
+  bool isLoadingMore = false;
+  bool hasMore = true;
 
   Map<String, String> ingredientImages = {};
 
   // Fetching the image for a given ingredient
   Future<void> fetchIngredientImage(String query) async {
-    final response = await http.get(
-      Uri.parse('https://api.pexels.com/v1/search?query=$query'),
-      headers: {
-        'Authorization': 'ZVCm4CAeFdTw2z58Mpu4cVZqHEOC8EhNPeAGVW3KG5yGETH5R4DYX13I'
-      },
-    );
-    if (response.statusCode == 200) {
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.pexels.com/v1/search?query=$query'),
+        headers: {
+          'Authorization': 'ZVCm4CAeFdTw2z58Mpu4cVZqHEOC8EhNPeAGVW3KG5yGETH5R4DYX13I',
+        },
+      );
 
-      final data = jsonDecode(response.body);
-      print(data);
-      String imageUrl = data['photos'][0]['src']['medium'];
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        //print("data $data");
+        print( data['photos'] );
+        if (data['photos'] != null && data['photos'].isNotEmpty) {
+          String imageUrl = data['photos'][0]['src']['medium'];
+          setState(() {
+            ingredientImages[query] = imageUrl;
+          });
+         // print("imageUrl $imageUrl");
+        } else {
+          setState(() {
+            ingredientImages[query] = ''; // Pas d'image trouvée
+          });
+        }
+      } else {
+        throw Exception('Failed to load image for $query');
+      }
+    } catch (e) {
       setState(() {
-        ingredientImages[query] = imageUrl;
+        ingredientImages[query] = ''; // Cas d'erreur
       });
-    } else {
-      throw Exception('Failed to load image');
     }
   }
-
-  Future<void> fetchRecipes() async {
-    final keyword = selectedIngredient ?? _keywordController.text;
-    if (keyword.isEmpty) return;
-
-    final response = await http.get(
-      Uri.parse('http://10.0.2.2:5000/api/search?keyword=$keyword'),
-    );
-
-    if (response.statusCode == 200) {
+  Future<void> fetchRecipes({bool loadMore = false}) async {
+    if (!loadMore) {
       setState(() {
-        recipes = jsonDecode(response.body);
+        page = 1;
+        hasMore = true;
+        recipes.clear();
       });
     } else {
-      throw Exception('Failed to load recipes');
+      setState(() {
+        isLoadingMore = true;
+      });
+    }
+
+    final keyword = selectedIngredient ?? _keywordController.text.trim();
+    if (keyword.isEmpty || !hasMore) return;
+
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:5000/api/search?keyword=$keyword&page=$page'),
+      );
+
+      if (response.statusCode == 200) {
+        final results = jsonDecode(response.body);
+
+        setState(() {
+          if (results.isNotEmpty) {
+            recipes.addAll(results);
+            page++;
+            hasMore = results.length == 10;
+          } else {
+            hasMore = false;
+          }
+        });
+      } else {
+        throw Exception('Failed to load recipes');
+      }
+    } catch (e) {
+      setState(() {
+        hasMore = false;
+      });
+    } finally {
+      setState(() {
+        isLoadingMore = false;
+      });
     }
   }
-
   @override
   void initState() {
     super.initState();
-    // Fetch images for all ingredients
     for (var ingredient in ingredients) {
       fetchIngredientImage(ingredient);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,6 +135,11 @@ class _RecipeSearchState extends State<RecipeSearch> {
                 filled: true,
                 fillColor: Colors.grey[200],
               ),
+              onChanged: (value) {
+                setState(() {
+                  selectedIngredient = null; // Réinitialiser l'ingrédient sélectionné
+                });
+              },
             ),
             const SizedBox(height: 20),
             const Text(
@@ -111,7 +163,8 @@ class _RecipeSearchState extends State<RecipeSearch> {
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        selectedIngredient = ingredient;
+                        selectedIngredient =
+                        selectedIngredient == ingredient ? null : ingredient;
                         _keywordController.clear();
                       });
                     },
@@ -127,12 +180,18 @@ class _RecipeSearchState extends State<RecipeSearch> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           imageUrl.isNotEmpty
-                              ? Image.network(imageUrl, height: 40, width: 40, fit: BoxFit.cover)
-                              : Container(), // Display image if available
-                          SizedBox(width: 8),
+                              ? Image.network(imageUrl,
+                              height: 40,
+                              width: 40,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.image_not_supported))
+                              : const Icon(Icons.image, size: 40),
+                          const SizedBox(width: 8),
                           Text(
                             ingredient,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
@@ -145,7 +204,8 @@ class _RecipeSearchState extends State<RecipeSearch> {
             ElevatedButton(
               onPressed: fetchRecipes,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -157,15 +217,25 @@ class _RecipeSearchState extends State<RecipeSearch> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: recipes.isEmpty
-                  ? const Center(child: Text('No recipes found'))
-                  : ListView.builder(
-                itemCount: recipes.length,
+              child: ListView.builder(
+                itemCount: recipes.length + 1,
                 itemBuilder: (context, index) {
-                  var recipe = recipes[index];
+                  if (index == recipes.length) {
+                    return hasMore
+                        ? SizedBox(
+                      width: 100,
+                      child: IconButton(
+                        onPressed: () => fetchRecipes(loadMore: true),
+                        icon: isLoadingMore
+                            ? const CircularProgressIndicator()
+                            : const Icon(Icons.keyboard_arrow_down, size: 30),
+                      ),
+                    )
+                        : const SizedBox();
+                  }
+                  final recipe = recipes[index];
                   return Card(
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 8, horizontal: 8),
+                    margin: const EdgeInsets.all(8.0),
                     child: ListTile(
                       title: Text(recipe['title']),
                     ),
