@@ -100,7 +100,6 @@ class UserService {
     }
     return false;
   }
-
   static Future<bool> register(BuildContext context, String email, String password, String username) async {
     if (email.isEmpty || password.isEmpty || username.isEmpty) {
       showDialog(
@@ -134,13 +133,13 @@ class UserService {
       }),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) { // Check for successful registration
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Success'),
-            content: Text('Register successful. Verify your email.'),
+            content: Text('Registration successful! Verify your email.'),
             actions: [
               TextButton(
                 child: Text('OK'),
@@ -156,7 +155,7 @@ class UserService {
           );
         },
       );
-      return true;
+      return true; // Indicate success
     } else {
       showDialog(
         context: context,
@@ -176,10 +175,8 @@ class UserService {
         },
       );
     }
-    return false;
+    return false; // Indicate failure
   }
-
-
   // Logout method to remove the token from SharedPreferences
   static Future<void> logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

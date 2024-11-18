@@ -29,13 +29,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       if (success) {
         // If registration is successful, navigate to the login screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (e) => const LoginScreen(),
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration Successful!'),
+            backgroundColor: Colors.green,
           ),
         );
-        return true;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+        return true; // Indicate success
       } else {
         // If registration fails, display an error message
         ScaffoldMessenger.of(context).showSnackBar(
@@ -44,7 +48,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             backgroundColor: Colors.red,
           ),
         );
-        return false; // Return false to indicate failure
+        return false; // Indicate failure
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -53,10 +57,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           backgroundColor: Colors.red,
         ),
       );
-      return false;
+      return false; // Indicate failure
     }
   }
-
 
 
 
@@ -184,32 +187,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
 
-                            onPressed: () async {
-                              if (_formLoginKey.currentState!.validate()) {
-                                // Appel de la fonction register et capture de la réponse
-                                bool isRegistered = await register();
+                          onPressed: () async {
+                            if (_formLoginKey.currentState!.validate()) {
+                              // Appel de la fonction register et capture de la réponse
+                              bool isRegistered = await register();
 
-                                if (isRegistered) {
-                                  // Afficher un message de succès
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Registration Successful!'),
-                                      backgroundColor: Colors.green,
-                                    ),
-                                  );
-                                } else {
-                                  // Afficher un message d'erreur
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Registration Failed. Try again.222'),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                }
+                              if (isRegistered) {
+                                // Afficher un message de succès
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Registration Successful!'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } else {
+                                // Afficher un message d'erreur
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Registration Failed. Try again.222'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
                               }
-                            },
+                            }
+                          },
 
-                            child: const Text('Sign up'),
+                          child: const Text('Sign up'),
                         ),
                       ),
                       const SizedBox(

@@ -28,7 +28,9 @@ class _RecipeSearchState extends State<RecipeSearch> {
       },
     );
     if (response.statusCode == 200) {
+
       final data = jsonDecode(response.body);
+      print(data);
       String imageUrl = data['photos'][0]['src']['medium'];
       setState(() {
         ingredientImages[query] = imageUrl;
