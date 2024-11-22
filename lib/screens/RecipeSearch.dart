@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:receipe_project/screens/RecipeDetailsPage.dart';
 
 class RecipeSearch extends StatefulWidget {
   const RecipeSearch({super.key});
@@ -12,7 +13,8 @@ class RecipeSearch extends StatefulWidget {
 class _RecipeSearchState extends State<RecipeSearch> {
   List<dynamic> recipes = [];
   final TextEditingController _keywordController = TextEditingController();
-  String? selectedIngredient;
+  //String? selectedIngredient;
+  List<String> selectedIngredients = [];
   final List<String> ingredients = [
     'Tomato', 'Vanilla', 'Cucumber', 'Onion', 'Carrot', 'Chocolate'
   ];
@@ -33,17 +35,19 @@ class _RecipeSearchState extends State<RecipeSearch> {
           'Authorization': 'ZVCm4CAeFdTw2z58Mpu4cVZqHEOC8EhNPeAGVW3KG5yGETH5R4DYX13I',
         },
       );
+      print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        //print("data $data");
-        print( data['photos'] );
+       // print("data $data");
+        //print( data['photos'] );
         if (data['photos'] != null && data['photos'].isNotEmpty) {
           String imageUrl = data['photos'][0]['src']['medium'];
           setState(() {
             ingredientImages[query] = imageUrl;
           });
-         // print("imageUrl $imageUrl");
+          print("ingredientImages $ingredientImages");
+
         } else {
           setState(() {
             ingredientImages[query] = ''; // Pas d'image trouvée
@@ -58,6 +62,7 @@ class _RecipeSearchState extends State<RecipeSearch> {
       });
     }
   }
+
   Future<void> fetchRecipes({bool loadMore = false}) async {
     if (!loadMore) {
       setState(() {
@@ -71,22 +76,35 @@ class _RecipeSearchState extends State<RecipeSearch> {
       });
     }
 
-    final keyword = selectedIngredient ?? _keywordController.text.trim();
-    if (keyword.isEmpty || !hasMore) return;
+    //final keyword = selectedIngredient ?? _keywordController.text.trim();
+    //if (keyword.isEmpty || !hasMore) return;
+
+    final keyword = _keywordController.text.trim();
+    final combinedQuery = [
+      if (keyword.isNotEmpty) keyword,
+      ...selectedIngredients
+    ].join(', ');
+
+    if (combinedQuery.isEmpty || !hasMore) return;
+
+    // Parameters for pagination
+    final int start = (page - 1) * 10;
+    final int count = 10;
 
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:5000/api/search?keyword=$keyword&page=$page'),
+        Uri.parse(
+            'http://10.0.2.2:5000/api/search?start=$start&count=$count&keyword=$combinedQuery'),
       );
 
       if (response.statusCode == 200) {
         final results = jsonDecode(response.body);
-
+     //   print("results $results");
         setState(() {
           if (results.isNotEmpty) {
             recipes.addAll(results);
             page++;
-            hasMore = results.length == 10;
+            hasMore = results.length == count;
           } else {
             hasMore = false;
           }
@@ -104,6 +122,9 @@ class _RecipeSearchState extends State<RecipeSearch> {
       });
     }
   }
+
+
+
   @override
   void initState() {
     super.initState();
@@ -135,15 +156,10 @@ class _RecipeSearchState extends State<RecipeSearch> {
                 filled: true,
                 fillColor: Colors.grey[200],
               ),
-              onChanged: (value) {
-                setState(() {
-                  selectedIngredient = null; // Réinitialiser l'ingrédient sélectionné
-                });
-              },
             ),
             const SizedBox(height: 20),
             const Text(
-              'Select an ingredient:',
+              'Select ingredients:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
@@ -160,21 +176,22 @@ class _RecipeSearchState extends State<RecipeSearch> {
                 itemBuilder: (context, index) {
                   final ingredient = ingredients[index];
                   final imageUrl = ingredientImages[ingredient] ?? '';
+                  final isSelected = selectedIngredients.contains(ingredient);
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        selectedIngredient =
-                        selectedIngredient == ingredient ? null : ingredient;
-                        _keywordController.clear();
+                        if (isSelected) {
+                          selectedIngredients.remove(ingredient);
+                        } else {
+                          selectedIngredients.add(ingredient);
+                        }
                       });
                     },
                     child: Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      color: selectedIngredient == ingredient
-                          ? Colors.orangeAccent
-                          : Colors.white,
+                      color: isSelected ? Colors.orangeAccent : Colors.white,
                       elevation: 2,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -238,11 +255,21 @@ class _RecipeSearchState extends State<RecipeSearch> {
                     margin: const EdgeInsets.all(8.0),
                     child: ListTile(
                       title: Text(recipe['title']),
+                      trailing: const Icon(Icons.arrow_forward),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RecipeDetailsPage(recipe: recipe),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },
               ),
             ),
+
           ],
         ),
       ),

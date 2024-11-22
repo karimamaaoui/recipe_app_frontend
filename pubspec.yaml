@@ -41,6 +41,7 @@ dependencies:
   iconsax: ^0.0.8
   jwt_decode: ^0.3.1
   shared_preferences: ^2.3.3
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:
