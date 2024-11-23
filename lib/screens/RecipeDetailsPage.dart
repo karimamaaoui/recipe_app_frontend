@@ -1,7 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:receipe_project/constants.dart';
+import 'package:receipe_project/screens/ServiceFavorite.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RecipeDetailsPage extends StatefulWidget {
   final Map<String, dynamic> recipe;
@@ -15,27 +18,28 @@ class RecipeDetailsPage extends StatefulWidget {
 class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
   Map<String, String> ingredientImages = {};
   String? recipeImageUrl;
+  bool isFavorite = false;
+  final ServiceFavorite serviceFavorite = ServiceFavorite();
+
 
   @override
   void initState() {
     super.initState();
+    checkIfFavorite();
     fetchRecipeImage(widget.recipe['title']);
-    // Fetch images for all ingredients
     final ingredients = (widget.recipe['ingredients'] as String).split(", ");
     for (var ingredient in ingredients) {
       fetchIngredientImage(ingredient);
     }
   }
 
-
-  // Fetch image for the recipe title
+  // Fetch recipe image from Pexels API
   Future<void> fetchRecipeImage(String query) async {
     try {
       final response = await http.get(
         Uri.parse('https://api.pexels.com/v1/search?query=$query'),
         headers: {
-          'Authorization': 'ZVCm4CAeFdTw2z58Mpu4cVZqHEOC8EhNPeAGVW3KG5yGETH5R4DYX13I',
-        },
+          'Authorization': 'ZVCm4CAeFdTw2z58Mpu4cVZqHEOC8EhNPeAGVW3KG5yGETH5R4DYX13I', },
       );
 
       if (response.statusCode == 200) {
@@ -59,13 +63,14 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
       });
     }
   }
+
+  // Fetch ingredient image from Pexels API
   Future<void> fetchIngredientImage(String query) async {
     try {
       final response = await http.get(
         Uri.parse('https://api.pexels.com/v1/search?query=$query'),
         headers: {
-          'Authorization': 'ZVCm4CAeFdTw2z58Mpu4cVZqHEOC8EhNPeAGVW3KG5yGETH5R4DYX13I',
-        },
+          'Authorization': 'ZVCm4CAeFdTw2z58Mpu4cVZqHEOC8EhNPeAGVW3KG5yGETH5R4DYX13I',  },
       );
 
       if (response.statusCode == 200) {
@@ -90,31 +95,62 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
     }
   }
 
-  // Clean up the directions to remove unwanted characters
+  // Clean up the directions text format
   List<String> cleanDirections(dynamic directions) {
     if (directions is String) {
-      // If it's a single string, split it by newline characters
       return directions
-          .replaceAll('[', '') // Remove '['
-          .replaceAll(']', '') // Remove ']'
-          .replaceAll('"', '') // Remove quotes
-          .split(", "); // Split by commas
+          .replaceAll('[', '')
+          .replaceAll(']', '')
+          .replaceAll('"', '')
+          .split(", ");
     } else if (directions is List<dynamic>) {
-      // If it's already a list, convert it to a list of strings
       return directions.cast<String>();
     }
-    // Return an empty list if it's neither
     return [];
   }
 
+  // Check if the recipe is already a favorite
+  Future<void> checkIfFavorite() async {
+    List<Map<String, dynamic>> favorites = await serviceFavorite.getFavorites();
+    isFavorite = favorites.any((recipe) => recipe['title'] == widget.recipe['title']);
+    setState(() {});
+  }
+
+  // Toggle favorite state
+  Future<void> toggleFavorite() async {
+    if (isFavorite) {
+      await serviceFavorite.removeFavorite(widget.recipe);
+    } else {
+      await serviceFavorite.addFavorite(widget.recipe);
+    }
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+  }
+
+  // Share the recipe link
+  void _shareContent() {
+    Share.share(widget.recipe['link']);
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
-    // Clean directions before displaying
     final List<String> directions = cleanDirections(widget.recipe['directions']);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.recipe['title']),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite ? Colors.red : null,
+            ),
+            onPressed: toggleFavorite,
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -122,7 +158,6 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Display image if available
               if (recipeImageUrl != null && recipeImageUrl!.isNotEmpty)
                 Image.network(
                   recipeImageUrl!,
@@ -132,24 +167,17 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                   errorBuilder: (context, error, stackTrace) =>
                   const Icon(Icons.broken_image),
                 ),
-
-
               const SizedBox(height: 16),
-
-
               const Text(
                 'Ingredients:',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-
-              // Grid of ingredients
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: (widget.recipe['ingredients'] as String)
-                    .split(", ")
-                    .length,
+                itemCount:
+                (widget.recipe['ingredients'] as String).split(", ").length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   crossAxisSpacing: 8,
@@ -194,15 +222,11 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Directions section
               const Text(
                 'Directions:',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-
-              // List of directions
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -224,6 +248,34 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                     ),
                   );
                 },
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Source:',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () async {
+                  if (await canLaunch(widget.recipe['link'])) {
+                    await launch(widget.recipe['link']);
+                  } else {
+                    throw 'Could not launch ${widget.recipe['link']}';
+                  }
+                },
+                child: Text(
+                  widget.recipe['link'],
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _shareContent,
+                child: const Text('Share Recipe'),
               ),
             ],
           ),

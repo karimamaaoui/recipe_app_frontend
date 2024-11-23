@@ -148,7 +148,7 @@ class _RecipeSearchState extends State<RecipeSearch> {
               controller: _keywordController,
               decoration: InputDecoration(
                 labelText: 'Search by keyword',
-                hintText: 'e.g., Pasta, Cake...',
+                hintText: 'Pasta, Cake, Couscous ...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),

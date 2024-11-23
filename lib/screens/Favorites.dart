@@ -4,6 +4,7 @@ import 'package:receipe_project/screens/categories/categories.dart';
 import 'package:receipe_project/screens/home/homeAppbar.dart';
 import 'package:receipe_project/screens/home/home_search_app.dart';
 import 'package:receipe_project/screens/quick_foods/quickandfastlist.dart';
+import 'package:http/http.dart' as http;
 
 class Favorites extends StatefulWidget {
   const Favorites({super.key});

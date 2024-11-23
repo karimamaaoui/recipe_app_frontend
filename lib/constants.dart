@@ -69,3 +69,5 @@ final usernameValidator = MultiValidator([
 // Common Text
 final Center kOrText = Center(
     child: Text("Or", style: TextStyle(color: titleColor.withOpacity(0.7))));
+
+

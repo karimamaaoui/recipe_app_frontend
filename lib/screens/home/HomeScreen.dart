@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:receipe_project/constants.dart';
+import 'package:receipe_project/screens/FavoritePage.dart';
 import 'package:receipe_project/screens/Favorites.dart';
 import 'package:receipe_project/screens/RecipeSearch.dart';
 import 'package:receipe_project/screens/home/Home.dart';
@@ -16,11 +17,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int currentTab = 0;
-  List screens= const[
-    Home(),
-    Favorites(),
-    RecipeSearch(),
-    Settings()
+  List screens= [
+    const Home(),
+    FavoritePage(),
+    const RecipeSearch(),
+    const Settings()
   ];
   @override
   Widget build(BuildContext context) {
