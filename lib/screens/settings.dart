@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:receipe_project/screens/AddRecipePage.dart';
 import 'package:receipe_project/screens/auth/login_screen.dart';
 import 'package:receipe_project/screens/auth/service/UserService.dart';
 
@@ -13,14 +14,14 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')), // Added app bar for clarity
+      appBar: AppBar(title: const Text('Settings')),
       body: SingleChildScrollView(
-        child: Center(  // Center the content horizontally
+        child: Center(
           child: Container(
-            padding: const EdgeInsets.all(16.0),  // Added padding for better spacing
+            padding: const EdgeInsets.all(16.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,  // Center the content vertically within the Column
-              crossAxisAlignment: CrossAxisAlignment.center,  // Center content horizontally within the Column
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Circular Profile Image
                 SizedBox(
@@ -28,7 +29,7 @@ class _SettingsState extends State<Settings> {
                   height: 120,
                   child: ClipOval(
                     child: Image(
-                      image: AssetImage('assets/images/user-06.png'), // Replace with your actual image
+                      image: AssetImage('assets/images/user-06.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -58,20 +59,26 @@ class _SettingsState extends State<Settings> {
                   title: 'Account Settings',
                   iconitem: Icons.account_circle,
                   onPress: () {
-                    // Handle the action for the account settings
                   },
                   textColor: Colors.black,
                   endIcon: true,
                 ),
                 MenuWidget(
-                  title: 'Privacy Settings',
+                  title: 'Add Recipe ',
                   iconitem: Icons.lock,
                   onPress: () {
-                    // Handle the action for privacy settings
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (e) => AddRecipePage(),
+                      ),
+                    );
+
                   },
                   textColor: Colors.black,
                   endIcon: true,
                 ),
+
                 MenuWidget(
                   title: 'Logout',
                   iconitem: Icons.logout,

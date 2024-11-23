@@ -18,7 +18,7 @@ class HomeAppbar extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 20), // Add spacing between text and icon button
+        const SizedBox(width: 20),
         IconButton(
           onPressed: () {
           },
@@ -29,7 +29,7 @@ class HomeAppbar extends StatelessWidget {
             backgroundColor: Colors.white,
             fixedSize: const Size(55, 55),
           ),
-          icon: const Icon(BoxIcons.bxs_bell_ring), // Notification icon
+          icon: const Icon(BoxIcons.bxs_bell_ring),
         ),
       ],
     );

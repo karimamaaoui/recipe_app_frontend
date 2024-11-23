@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:receipe_project/constants.dart';
+import 'package:receipe_project/screens/RecipeService.dart';
 import 'package:receipe_project/screens/ServiceFavorite.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -33,35 +34,11 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
     }
   }
 
-  // Fetch recipe image from Pexels API
   Future<void> fetchRecipeImage(String query) async {
-    try {
-      final response = await http.get(
-        Uri.parse('https://api.pexels.com/v1/search?query=$query'),
-        headers: {
-          'Authorization': 'ZVCm4CAeFdTw2z58Mpu4cVZqHEOC8EhNPeAGVW3KG5yGETH5R4DYX13I', },
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['photos'] != null && data['photos'].isNotEmpty) {
-          String imageUrl = data['photos'][0]['src']['medium'];
-          setState(() {
-            recipeImageUrl = imageUrl;
-          });
-        } else {
-          setState(() {
-            recipeImageUrl = ''; // No image found
-          });
-        }
-      } else {
-        throw Exception('Failed to load recipe image');
-      }
-    } catch (e) {
-      setState(() {
-        recipeImageUrl = ''; // Error case
-      });
-    }
+    final imageUrl = await RecipeService.fetchRecipeImage(query);
+    setState(() {
+      recipeImageUrl = imageUrl ?? '';
+    });
   }
 
   // Fetch ingredient image from Pexels API

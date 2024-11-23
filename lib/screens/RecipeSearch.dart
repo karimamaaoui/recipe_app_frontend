@@ -11,9 +11,10 @@ class RecipeSearch extends StatefulWidget {
 }
 
 class _RecipeSearchState extends State<RecipeSearch> {
+
   List<dynamic> recipes = [];
   final TextEditingController _keywordController = TextEditingController();
-  //String? selectedIngredient;
+
   List<String> selectedIngredients = [];
   final List<String> ingredients = [
     'Tomato', 'Vanilla', 'Cucumber', 'Onion', 'Carrot', 'Chocolate'
@@ -75,9 +76,6 @@ class _RecipeSearchState extends State<RecipeSearch> {
         isLoadingMore = true;
       });
     }
-
-    //final keyword = selectedIngredient ?? _keywordController.text.trim();
-    //if (keyword.isEmpty || !hasMore) return;
 
     final keyword = _keywordController.text.trim();
     final combinedQuery = [

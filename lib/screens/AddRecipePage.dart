@@ -85,87 +85,132 @@ class _AddRecipePageState extends State<AddRecipePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Add Recipe')),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Title input field
-                TextFormField(
-                  controller: titleController,
-                  decoration: InputDecoration(labelText: 'Recipe Title'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a title';
-                    }
-                    return null;
-                  },
-                ),
-                // Ingredients input field
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Ingredient'),
-                  onFieldSubmitted: (ingredient) {
-                    _addIngredient(ingredient);
-                  },
-                ),
-                // Directions input field
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Direction'),
-                  onFieldSubmitted: (direction) {
-                    _addDirection(direction);
-                  },
-                ),
-                // Link input field
-                TextFormField(
-                  controller: linkController,
-                  decoration: InputDecoration(labelText: 'Recipe Link'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a link';
-                    }
-                    return null;
-                  },
-                ),
-                // Source input field
-                TextFormField(
-                  controller: sourceController,
-                  decoration: InputDecoration(labelText: 'Source'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a source';
-                    }
-                    return null;
-                  },
-                ),
-                // NER input field
-                TextFormField(
-                  controller: nerController,
-                  decoration: InputDecoration(labelText: 'NER Information'),
-                ),
-                // Site input field
-                TextFormField(
-                  controller: siteController,
-                  decoration: InputDecoration(labelText: 'Site'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a site name';
-                    }
-                    return null;
-                  },
-                ),
-                // Submit button
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  child: Text('Add Recipe'),
-                ),
-              ],
+    return WillPopScope(
+      onWillPop: () async {
+        // Return to the previous page (Settings page)
+        Navigator.pop(context);
+        return false; // Prevent default back button behavior
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Add Recipe')),
+        body: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Title input field
+                  _buildTextField(
+                    controller: titleController,
+                    label: 'Recipe Title',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a title';
+                      }
+                      return null;
+                    },
+                  ),
+                  // Ingredients input field
+                  _buildTextField(
+                    label: 'Ingredient',
+                    onFieldSubmitted: (ingredient) {
+                      _addIngredient(ingredient);
+                    },
+                  ),
+                  // Directions input field
+                  _buildTextField(
+                    label: 'Direction',
+                    onFieldSubmitted: (direction) {
+                      _addDirection(direction);
+                    },
+                  ),
+                  // Link input field
+                  _buildTextField(
+                    controller: linkController,
+                    label: 'Recipe Link',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a link';
+                      }
+                      return null;
+                    },
+                  ),
+                  // Source input field
+                  _buildTextField(
+                    controller: sourceController,
+                    label: 'Source',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a source';
+                      }
+                      return null;
+                    },
+                  ),
+                  // NER input field
+                  _buildTextField(
+                    controller: nerController,
+                    label: 'NER Information',
+                  ),
+                  // Site input field
+                  _buildTextField(
+                    controller: siteController,
+                    label: 'Site',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a site name';
+                      }
+                      return null;
+                    },
+                  ),
+                  // Submit button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: ElevatedButton(
+                      onPressed: _submitForm,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text('Add Recipe', style: TextStyle(fontSize: 18)),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Helper function to build TextFormField with common design
+  Widget _buildTextField({
+    required String label,
+    TextEditingController? controller,
+    FormFieldValidator<String>? validator,
+    Function(String)? onFieldSubmitted,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.teal),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.teal, width: 2),
+          ),
+          contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        ),
+        validator: validator,
+        onFieldSubmitted: onFieldSubmitted,
       ),
     );
   }
