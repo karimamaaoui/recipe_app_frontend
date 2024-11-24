@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:receipe_project/constants.dart';
 import 'package:receipe_project/screens/RecipeService.dart';
 import 'package:receipe_project/screens/ServiceFavorite.dart';
 import 'package:share_plus/share_plus.dart';
@@ -150,55 +149,58 @@ class _RecipeDetailsPageState extends State<RecipeDetailsPage> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount:
-                (widget.recipe['ingredients'] as String).split(", ").length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                  childAspectRatio: 0.9,
-                ),
-                itemBuilder: (context, index) {
-                  final List<String> ingredients =
-                  (widget.recipe['ingredients'] as String).split(", ");
-                  final ingredient = ingredients[index];
-                  final imageUrl = ingredientImages[ingredient];
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: (widget.recipe['ingredients'] as String).split(", ").length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 0.9,
+            ),
+            itemBuilder: (context, index) {
+              final List<String> ingredients = (widget.recipe['ingredients'] as String).split(", ");
+              final ingredient = ingredients[index];
+              final imageUrl = ingredientImages[ingredient];
 
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 70,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8),
-                          image: imageUrl != null && imageUrl.isNotEmpty
-                              ? DecorationImage(
-                            image: NetworkImage(imageUrl),
-                            fit: BoxFit.cover,
-                          )
-                              : null,
-                        ),
-                        child: imageUrl == null || imageUrl.isEmpty
-                            ? const Icon(Icons.food_bank,
-                            size: 40, color: Colors.green)
-                            : null,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        ingredient,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8),
+                      image: imageUrl != null && imageUrl.isNotEmpty
+                          ? DecorationImage(
+                        image: NetworkImage(imageUrl),
+                        fit: BoxFit.cover,
+                      )
+                          : null,
+                    ),
+                    child: imageUrl == null || imageUrl.isEmpty
+                        ? const Icon(Icons.food_bank, size: 40, color: Colors.green)
+                        : null,
+                  ),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    width: 70,
+                    child: Text(
+                      ingredient,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
               const Text(
                 'Directions:',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

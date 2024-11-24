@@ -45,4 +45,40 @@ class RecipeService {
       throw Exception('Error: $e');
     }
   }
+
+
+
+
+  static Future<List<Map<String, dynamic>>> fetchRecipes({
+    required String keyword,
+    required List<String> selectedIngredients,
+    required int page,
+    required int count,
+  }) async {
+    final combinedQuery = [
+      if (keyword.isNotEmpty) keyword,
+      ...selectedIngredients,
+    ].join(', ');
+
+    if (combinedQuery.isEmpty) return [];
+
+    final start = (page - 1) * count;
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '$baseUrl/api/search?start=$start&count=$count&keyword=$combinedQuery'),
+      );
+
+      if (response.statusCode == 200) {
+        final results = jsonDecode(response.body);
+        return List<Map<String, dynamic>>.from(results);
+      } else {
+        throw Exception('Failed to load recipes');
+      }
+    } catch (e) {
+      print('Error fetching recipes: $e');
+      return [];
+    }
+  }
 }

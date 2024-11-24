@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:receipe_project/screens/RecipeDetailsPage.dart';
+import 'package:receipe_project/screens/RecipeService.dart';
 
 class RecipeSearch extends StatefulWidget {
   const RecipeSearch({super.key});
@@ -19,6 +20,7 @@ class _RecipeSearchState extends State<RecipeSearch> {
   final List<String> ingredients = [
     'Tomato', 'Vanilla', 'Cucumber', 'Onion', 'Carrot', 'Chocolate'
   ];
+  String? recipeImageUrl;
 
   // Variables pour la pagination
   int page = 1;
@@ -26,6 +28,15 @@ class _RecipeSearchState extends State<RecipeSearch> {
   bool hasMore = true;
 
   Map<String, String> ingredientImages = {};
+
+  Map<String, String> recipeImages = {};
+
+  Future<void> fetchRecipeImage(String query) async {
+    final imageUrl = await RecipeService.fetchRecipeImage(query);
+    setState(() {
+      recipeImages[query] = imageUrl ?? '';
+    });
+  }
 
   // Fetching the image for a given ingredient
   Future<void> fetchIngredientImage(String query) async {
@@ -36,7 +47,7 @@ class _RecipeSearchState extends State<RecipeSearch> {
           'Authorization': 'ZVCm4CAeFdTw2z58Mpu4cVZqHEOC8EhNPeAGVW3KG5yGETH5R4DYX13I',
         },
       );
-      print("Response body: ${response.body}");
+    //  print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -47,7 +58,7 @@ class _RecipeSearchState extends State<RecipeSearch> {
           setState(() {
             ingredientImages[query] = imageUrl;
           });
-          print("ingredientImages $ingredientImages");
+          //print("ingredientImages $ingredientImages");
 
         } else {
           setState(() {
@@ -63,8 +74,60 @@ class _RecipeSearchState extends State<RecipeSearch> {
       });
     }
   }
-
   Future<void> fetchRecipes({bool loadMore = false}) async {
+    if (!loadMore) {
+      setState(() {
+        page = 1;
+        hasMore = true;
+        recipes.clear();
+      });
+    } else {
+      setState(() {
+        isLoadingMore = true;
+      });
+    }
+
+    final keyword = _keywordController.text.trim();
+    final combinedQuery = [
+      if (keyword.isNotEmpty) keyword,
+      ...selectedIngredients
+    ].join(', ');
+
+    if (combinedQuery.isEmpty || !hasMore) return;
+
+    // Fetching recipes from RecipeService
+    try {
+      final fetchedRecipes = await RecipeService.fetchRecipes(
+        keyword: keyword,
+        selectedIngredients: selectedIngredients,
+        page: page,
+        count: 10,
+      );
+
+      setState(() {
+        if (fetchedRecipes.isNotEmpty) {
+          recipes.addAll(fetchedRecipes);
+          for (var recipe in recipes) {
+            fetchRecipeImage(recipe['title']);
+          }
+          page++;
+          hasMore = fetchedRecipes.length == 10;
+        } else {
+          hasMore = false;
+        }
+      });
+    } catch (e) {
+      setState(() {
+        hasMore = false;
+      });
+    } finally {
+      setState(() {
+        isLoadingMore = false;
+      });
+    }
+  }
+
+ /* Future<void> fetchRecipes({bool loadMore = false}) async {
     if (!loadMore) {
       setState(() {
         page = 1;
@@ -94,13 +157,21 @@ class _RecipeSearchState extends State<RecipeSearch> {
         Uri.parse(
             'http://10.0.2.2:5000/api/search?start=$start&count=$count&keyword=$combinedQuery'),
       );
-
       if (response.statusCode == 200) {
         final results = jsonDecode(response.body);
-     //   print("results $results");
+
+
+     //   print("Results: $results");
         setState(() {
           if (results.isNotEmpty) {
             recipes.addAll(results);
+           // print("recipes $recipes");
+            for (var recipe in recipes) {
+
+              fetchRecipeImage(recipe['title']);
+              print(recipe['title']);
+
+            }
             page++;
             hasMore = results.length == count;
           } else {
@@ -120,15 +191,16 @@ class _RecipeSearchState extends State<RecipeSearch> {
       });
     }
   }
-
-
+*/
 
   @override
   void initState() {
     super.initState();
+
     for (var ingredient in ingredients) {
       fetchIngredientImage(ingredient);
     }
+
   }
 
   @override
@@ -249,9 +321,30 @@ class _RecipeSearchState extends State<RecipeSearch> {
                         : const SizedBox();
                   }
                   final recipe = recipes[index];
+                  final recipeImageUrl = recipeImages[recipe['title']] ?? '';
                   return Card(
                     margin: const EdgeInsets.all(8.0),
                     child: ListTile(
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(30.0),
+                        child: recipeImageUrl.isNotEmpty
+                            ? Image.network(
+                          recipeImageUrl,
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey[400],
+                            size: 50,
+                          ),
+                        )
+                            : Icon(
+                          Icons.fastfood,
+                          color: Colors.grey[400],
+                          size: 50,
+                        ),
+                      ),
                       title: Text(recipe['title']),
                       trailing: const Icon(Icons.arrow_forward),
                       onTap: () {
