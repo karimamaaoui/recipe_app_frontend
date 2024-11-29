@@ -46,7 +46,7 @@ Make sure you have the following installed:
    flutter run
 
 
-### Detailed Folder Structure
+### Project Structure
 lib/
 ├── components/             # Contains reusable components (buttons, banners, etc.)
 │   ├── buttons/            # Buttons components
@@ -73,4 +73,4 @@ lib/
 └── OnboardingScreen.dart   # Onboarding screen (initial intro)
 
 ## Authors
-- **Karim Amaoui** - *Initial work* - [karimamaaoui](https://github.com/karimamaaoui)
+- **Karima Maaoui ** - *Initial work* - [karimamaaoui](https://github.com/karimamaaoui)
