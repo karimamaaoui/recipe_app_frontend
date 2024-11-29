@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:receipe_project/constants.dart';
 import 'package:receipe_project/screens/FavoritePage.dart';
-import 'package:receipe_project/screens/Favorites.dart';
 import 'package:receipe_project/screens/RecipeSearch.dart';
-import 'package:receipe_project/screens/home/Home.dart';
 import 'package:receipe_project/screens/home/RecipeHomePage.dart';
-import 'package:receipe_project/screens/recipe/recipeScreen.dart';
 import 'package:receipe_project/screens/settings.dart';
 
 class HomeScreen extends StatefulWidget {

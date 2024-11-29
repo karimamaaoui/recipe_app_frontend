@@ -32,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
     bool success = await UserService.login(context, email, password);
 
     if (success) {
-      // Navigate to HomeScreen if login is successful
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -40,13 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } else {
-      // Show error message if login fails
       print("error");
-     /* ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid email or password. Please try again. from login screen'),
-        ),
-      );*/
     }
   }
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:receipe_project/constants/constant.dart';
 
 class AddRecipePage extends StatefulWidget {
   @override
@@ -16,25 +17,31 @@ class _AddRecipePageState extends State<AddRecipePage> {
   final TextEditingController sourceController = TextEditingController();
   final TextEditingController nerController = TextEditingController();
   final TextEditingController siteController = TextEditingController();
+  final TextEditingController ingredientController = TextEditingController();
+  final TextEditingController directionController = TextEditingController();
 
   // Ingredients and Directions lists
   List<String> ingredients = [];
   List<String> directions = [];
 
   // Functions to handle adding ingredients and directions
-  void _addIngredient(String ingredient) {
-    setState(() {
-      ingredients.add(ingredient);
-    });
+  void _addIngredient() {
+    if (ingredientController.text.isNotEmpty) {
+      setState(() {
+        ingredients.add(ingredientController.text);
+        ingredientController.clear();
+      });
+    }
   }
 
-  void _addDirection(String direction) {
-    setState(() {
-      directions.add(direction);
-    });
+  void _addDirection() {
+    if (directionController.text.isNotEmpty) {
+      setState(() {
+        directions.add(directionController.text);
+        directionController.clear();
+      });
+    }
   }
-
-  // Function to submit the form
   Future<void> _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
       // Get form data
@@ -58,15 +65,42 @@ class _AddRecipePageState extends State<AddRecipePage> {
       // Send POST request to the Flask API
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.1.97:5000/api/recipes'),  // Update the IP address accordingly
+          Uri.parse('$baseUrl/api/recipes'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(body),
         );
 
         if (response.statusCode == 200) {
-          // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Recipe added successfully!')),
+          // Clear all text fields and lists after successful submission
+          setState(() {
+            titleController.clear();
+            linkController.clear();
+            sourceController.clear();
+            nerController.clear();
+            siteController.clear();
+            ingredientController.clear();
+            directionController.clear();
+            ingredients.clear();
+            directions.clear();
+          });
+
+          // Show success dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Success'),
+                content: Text('Recipe added successfully!'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
           );
         } else {
           // Show error message
@@ -85,100 +119,94 @@ class _AddRecipePageState extends State<AddRecipePage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // Return to the previous page (Settings page)
-        Navigator.pop(context);
-        return false; // Prevent default back button behavior
-      },
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Add Recipe')),
-        body: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Title input field
-                  _buildTextField(
-                    controller: titleController,
-                    label: 'Recipe Title',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a title';
-                      }
-                      return null;
-                    },
-                  ),
-                  // Ingredients input field
-                  _buildTextField(
-                    label: 'Ingredient',
-                    onFieldSubmitted: (ingredient) {
-                      _addIngredient(ingredient);
-                    },
-                  ),
-                  // Directions input field
-                  _buildTextField(
-                    label: 'Direction',
-                    onFieldSubmitted: (direction) {
-                      _addDirection(direction);
-                    },
-                  ),
-                  // Link input field
-                  _buildTextField(
-                    controller: linkController,
-                    label: 'Recipe Link',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a link';
-                      }
-                      return null;
-                    },
-                  ),
-                  // Source input field
-                  _buildTextField(
-                    controller: sourceController,
-                    label: 'Source',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a source';
-                      }
-                      return null;
-                    },
-                  ),
-                  // NER input field
-                  _buildTextField(
-                    controller: nerController,
-                    label: 'NER Information',
-                  ),
-                  // Site input field
-                  _buildTextField(
-                    controller: siteController,
-                    label: 'Site',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a site name';
-                      }
-                      return null;
-                    },
-                  ),
-                  // Submit button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: ElevatedButton(
-                      onPressed: _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
+    return Scaffold(
+      appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          title: const Text('Add Recipe')),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildTextField(
+                  controller: titleController,
+                  label: 'Recipe Title',
+                  validator: (value) =>
+                  value == null || value.isEmpty ? 'Please enter a title' : null,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        controller: ingredientController,
+                        label: 'Ingredient',
                       ),
-                      child: Text('Add Recipe', style: TextStyle(fontSize: 18)),
                     ),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: _addIngredient,
+                    ),
+                  ],
+                ),
+                _buildListDisplay('Ingredients:', ingredients),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        controller: directionController,
+                        label: 'Direction',
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: _addDirection,
+                    ),
+                  ],
+                ),
+                _buildListDisplay('Directions:', directions),
+                _buildTextField(
+                  controller: linkController,
+                  label: 'Recipe Link',
+                  validator: (value) =>
+                  value == null || value.isEmpty ? 'Please enter a link' : null,
+                ),
+                _buildTextField(
+                  controller: sourceController,
+                  label: 'Source',
+                  validator: (value) =>
+                  value == null || value.isEmpty ? 'Please enter a source' : null,
+                ),
+                _buildTextField(
+                  controller: nerController,
+                  label: 'NER Information',
+                ),
+                _buildTextField(
+                  controller: siteController,
+                  label: 'Site',
+                  validator: (value) =>
+                  value == null || value.isEmpty ? 'Please enter a site name' : null,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: ElevatedButton(
+                    onPressed: _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text('Add Recipe', style: TextStyle(fontSize: 18)),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -186,12 +214,10 @@ class _AddRecipePageState extends State<AddRecipePage> {
     );
   }
 
-  // Helper function to build TextFormField with common design
   Widget _buildTextField({
     required String label,
     TextEditingController? controller,
     FormFieldValidator<String>? validator,
-    Function(String)? onFieldSubmitted,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -199,19 +225,20 @@ class _AddRecipePageState extends State<AddRecipePage> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.teal),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.teal, width: 2),
-          ),
-          contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
         validator: validator,
-        onFieldSubmitted: onFieldSubmitted,
       ),
+    );
+  }
+
+  Widget _buildListDisplay(String title, List<String> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        ...items.map((item) => ListTile(title: Text(item))),
+      ],
     );
   }
 }

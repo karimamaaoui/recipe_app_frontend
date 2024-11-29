@@ -27,7 +27,7 @@ class _RecipeHomePageState extends State<RecipeHomePage> {
   Future<void> _loadUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-
+    print("token $token" );
     if (token != null) {
       try {
         // Diviser le token en parties (header, payload, signature)
@@ -47,7 +47,7 @@ class _RecipeHomePageState extends State<RecipeHomePage> {
 
         // Extraire le username
         setState(() {
-          username = decodedToken['email'] ?? 'Utilisateur inconnu';  });
+          username = decodedToken['username'] ?? 'Utilisateur inconnu';  });
       } catch (e) {
         print("Erreur lors du décodage du token : $e");
       }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:receipe_project/constants.dart';
 import 'package:receipe_project/screens/AddRecipePage.dart';
 import 'package:receipe_project/screens/auth/login_screen.dart';
 import 'package:receipe_project/screens/auth/service/UserService.dart';
@@ -40,7 +41,7 @@ class _SettingsState extends State<Settings> {
                   child: ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal,
+                      backgroundColor: primaryColor,
                       side: BorderSide.none,
                       shape: const StadiumBorder(),
                     ),
@@ -67,13 +68,12 @@ class _SettingsState extends State<Settings> {
                   title: 'Add Recipe ',
                   iconitem: Icons.lock,
                   onPress: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (e) => AddRecipePage(),
+                        builder: (context) => AddRecipePage(),
                       ),
                     );
-
                   },
                   textColor: Colors.black,
                   endIcon: true,
@@ -124,7 +124,7 @@ class MenuWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(100),
           color: Colors.teal.withOpacity(0.1),
         ),
-        child: Icon(iconitem, color: Colors.teal),
+        child: Icon(iconitem, color:primaryColor),
       ),
       title: Text(
         title,

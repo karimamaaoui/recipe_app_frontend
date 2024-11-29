@@ -11,6 +11,7 @@ class RecipeSearch extends StatefulWidget {
   State<RecipeSearch> createState() => _RecipeSearchState();
 }
 
+
 class _RecipeSearchState extends State<RecipeSearch> {
 
   List<dynamic> recipes = [];
@@ -74,7 +75,9 @@ class _RecipeSearchState extends State<RecipeSearch> {
       });
     }
   }
-  Future<void> fetchRecipes({bool loadMore = false}) async {
+
+
+ Future<void> fetchRecipes({bool loadMore = false}) async {
     if (!loadMore) {
       setState(() {
         page = 1;
@@ -126,72 +129,6 @@ class _RecipeSearchState extends State<RecipeSearch> {
       });
     }
   }
-
- /* Future<void> fetchRecipes({bool loadMore = false}) async {
-    if (!loadMore) {
-      setState(() {
-        page = 1;
-        hasMore = true;
-        recipes.clear();
-      });
-    } else {
-      setState(() {
-        isLoadingMore = true;
-      });
-    }
-
-    final keyword = _keywordController.text.trim();
-    final combinedQuery = [
-      if (keyword.isNotEmpty) keyword,
-      ...selectedIngredients
-    ].join(', ');
-
-    if (combinedQuery.isEmpty || !hasMore) return;
-
-    // Parameters for pagination
-    final int start = (page - 1) * 10;
-    final int count = 10;
-
-    try {
-      final response = await http.get(
-        Uri.parse(
-            'http://10.0.2.2:5000/api/search?start=$start&count=$count&keyword=$combinedQuery'),
-      );
-      if (response.statusCode == 200) {
-        final results = jsonDecode(response.body);
-
-
-     //   print("Results: $results");
-        setState(() {
-          if (results.isNotEmpty) {
-            recipes.addAll(results);
-           // print("recipes $recipes");
-            for (var recipe in recipes) {
-
-              fetchRecipeImage(recipe['title']);
-              print(recipe['title']);
-
-            }
-            page++;
-            hasMore = results.length == count;
-          } else {
-            hasMore = false;
-          }
-        });
-      } else {
-        throw Exception('Failed to load recipes');
-      }
-    } catch (e) {
-      setState(() {
-        hasMore = false;
-      });
-    } finally {
-      setState(() {
-        isLoadingMore = false;
-      });
-    }
-  }
-*/
 
   @override
   void initState() {
