@@ -72,5 +72,5 @@ lib/
 ├── main.dart               # Main entry point of the app
 └── OnboardingScreen.dart   # Onboarding screen (initial intro)
 
-### Authors
-Karima Maaoui - Initial work - karimamaaoui
+## Authors
+- **Karim Amaoui** - *Initial work* - [karimamaaoui](https://github.com/karimamaaoui)
