@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:receipe_project/constants.dart';
+import 'package:receipe_project/constants/constants.dart';
 import 'package:receipe_project/screens/AddRecipePage.dart';
 import 'package:receipe_project/screens/auth/login_screen.dart';
 import 'package:receipe_project/screens/auth/service/UserService.dart';

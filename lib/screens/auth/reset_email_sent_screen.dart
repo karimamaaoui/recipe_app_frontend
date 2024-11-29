@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:receipe_project/components/ScaffoldCustom.dart';
-import 'package:receipe_project/constants.dart';
+import 'package:receipe_project/constants/constants.dart';
 import '../../components/welcome_text.dart';
 
 class ResetEmailSentScreen extends StatelessWidget {

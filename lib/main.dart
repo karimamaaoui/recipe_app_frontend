@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:receipe_project/OnboardingScreen.dart';
-import 'package:receipe_project/constants.dart';
+import 'package:receipe_project/constants/constants.dart';
 import 'package:receipe_project/screens/home/HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

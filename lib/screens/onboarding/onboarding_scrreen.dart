@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:receipe_project/components/dot_indicators.dart';
-import 'package:receipe_project/constants.dart';
+import 'package:receipe_project/constants/constants.dart';
 import 'package:receipe_project/screens/auth/login_screen.dart';
 import 'components/onboard_content.dart';
 

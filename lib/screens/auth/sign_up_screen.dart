@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:receipe_project/components/ScaffoldCustom.dart';
-import 'package:receipe_project/constants.dart';
+import 'package:receipe_project/constants/constants.dart';
 import 'package:receipe_project/screens/auth/login_screen.dart';
 import 'package:receipe_project/screens/auth/service/UserService.dart';
 

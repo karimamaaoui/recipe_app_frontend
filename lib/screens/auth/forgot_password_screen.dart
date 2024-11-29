@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:receipe_project/components/ScaffoldCustom.dart';
 import 'package:receipe_project/screens/auth/reset_email_sent_screen.dart';
 import '../../components/welcome_text.dart';
-import '../../constants.dart';
+import '../../constants/constants.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
   const ForgotPasswordScreen({super.key});

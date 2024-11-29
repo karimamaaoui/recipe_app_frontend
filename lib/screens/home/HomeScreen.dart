@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:receipe_project/constants.dart';
+import 'package:receipe_project/constants/constants.dart';
 import 'package:receipe_project/screens/FavoritePage.dart';
 import 'package:receipe_project/screens/RecipeSearch.dart';
 import 'package:receipe_project/screens/home/RecipeHomePage.dart';
