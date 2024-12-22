@@ -41,11 +41,9 @@ class _RecipeHomePageState extends State<RecipeHomePage> {
         final normalized = base64Url.normalize(payload);
         final decoded = utf8.decode(base64Url.decode(normalized));
 
-        // Convertir en Map
         final Map<String, dynamic> decodedToken = jsonDecode(decoded);
         print("Token décodé : $decodedToken");
 
-        // Extraire le username
         setState(() {
           username = decodedToken['username'] ?? 'Utilisateur inconnu';  });
       } catch (e) {

@@ -63,7 +63,7 @@ class _RecipeSearchState extends State<RecipeSearch> {
 
         } else {
           setState(() {
-            ingredientImages[query] = ''; // Pas d'image trouvée
+            ingredientImages[query] = '';
           });
         }
       } else {
@@ -71,7 +71,7 @@ class _RecipeSearchState extends State<RecipeSearch> {
       }
     } catch (e) {
       setState(() {
-        ingredientImages[query] = ''; // Cas d'erreur
+        ingredientImages[query] = '';
       });
     }
   }

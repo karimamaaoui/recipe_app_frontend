@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mockito/annotations.dart';
 import 'package:receipe_project/OnboardingScreen.dart';
 import 'package:receipe_project/constants/constants.dart';
 import 'package:receipe_project/screens/home/HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+@GenerateMocks([http.Client])
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();

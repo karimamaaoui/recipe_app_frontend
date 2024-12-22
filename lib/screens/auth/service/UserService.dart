@@ -8,9 +8,13 @@ import 'package:receipe_project/screens/home/HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
+
+  static http.Client client = http.Client();
+
   static Future<bool> login(BuildContext context, String email, String password) async {
     var url = Uri.parse("$baseUrl/login");
-    var response = await http.post(
+   // var response = await http.post(
+    var response = await client.post(
       url,
       headers: <String, String>{"Content-Type": "application/json"},
       body: jsonEncode(<String, String>{
@@ -100,6 +104,8 @@ class UserService {
     }
     return false;
   }
+ 
+ 
   static Future<bool> register(BuildContext context, String email, String password, String username) async {
     if (email.isEmpty || password.isEmpty || username.isEmpty) {
       showDialog(
