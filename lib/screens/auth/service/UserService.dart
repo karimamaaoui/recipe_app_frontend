@@ -106,6 +106,7 @@ class UserService {
   }
  
  
+
   static Future<bool> register(BuildContext context, String email, String password, String username) async {
     if (email.isEmpty || password.isEmpty || username.isEmpty) {
       showDialog(
